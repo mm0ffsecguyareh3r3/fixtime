@@ -71,7 +71,7 @@ jobs:
           if-no-files-found: error
 
   release:
-    name: Publish GitHub Release 
+    name: Publish GitHub Release
     needs: build
     runs-on: ubuntu-latest
 
@@ -85,14 +85,19 @@ jobs:
           path: release
           merge-multiple: true
 
+      - name: Show downloaded files
+        run: find release -maxdepth 2 -type f -print
+
       - name: Create release and upload executables
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
         shell: bash
         run: |
           gh release create "${{ github.ref_name }}" \
             release/fixtime-windows.exe \
             release/fixtime-linux \
             release/fixtime-macos \
+            --repo "$GH_REPO" \
             --title "fixtime ${{ github.ref_name }}" \
             --generate-notes
