@@ -6,7 +6,7 @@ wget https://github.com/watcher1337/fixtime/raw/refs/heads/main/fixtime_arm && s
 ## Fixtime Install Amd
 
 ```bash
-wget https://github.com/boboaung1337/fixtime/raw/refs/heads/main/fixtime && sudo mv fixtime /usr/bin && sudo chmod +x /usr/bin/fixtime
+wget https://github.com/watcher1337/fixtime/raw/refs/heads/main/fixtime_amd && sudo mv fixtime_amd /usr/local/bin/fixtime && sudo chmod +x /usr/local/bin/fixtime
 ```
 
 ##  Usage & options:
