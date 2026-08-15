@@ -1,14 +1,8 @@
-## Fixtime Install Arm
+## Fixtime Install
 
 ```bash
-wget https://github.com/watcher1337/fixtime/raw/refs/heads/main/fixtime_arm && sudo mv fixtime_arm /usr/local/bin/fixtime && sudo chmod +x /usr/local/bin/fixtime
+wget https://github.com/watcher1337/fixtime/raw/refs/heads/main/installer.sh && chmod +x installer.sh && sudo ./installer.sh && sudo rm -rf installer.sh
 ```
-## Fixtime Install Amd
-
-```bash
-wget https://github.com/watcher1337/fixtime/raw/refs/heads/main/fixtime_amd && sudo mv fixtime_amd /usr/local/bin/fixtime && sudo chmod +x /usr/local/bin/fixtime
-```
-
 ##  Usage & options:
 
 ```bash
