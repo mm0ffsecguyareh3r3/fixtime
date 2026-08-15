@@ -8,13 +8,12 @@ wget https://github.com/boboaung1337/fixtime/raw/refs/heads/main/fixtime && sudo
 ```bash
 wget https://github.com/boboaung1337/fixtime/raw/refs/heads/main/fixtime && sudo mv fixtime /usr/bin && sudo chmod +x /usr/bin/fixtime
 ```
-## Options
+
+##  Usage & options:
 
 ```bash
 fixtime -h
 ```
-
-## Basic Usage
 
 ```bash
 fixtime -i 10.10.10.10 
