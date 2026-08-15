@@ -1,0 +1,107 @@
+name: Build and Release fixtime
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*"
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            artifact_name: fixtime-windows
+            executable_path: dist/fixtime.exe
+            release_name: fixtime-windows.exe
+
+          - os: ubuntu-latest
+            artifact_name: fixtime-linux
+            executable_path: dist/fixtime
+            release_name: fixtime-linux
+
+          - os: macos-latest
+            artifact_name: fixtime-macos
+            executable_path: dist/fixtime
+            release_name: fixtime-macos
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pyinstaller
+
+          if [ -f requirements.txt ]; then
+            python -m pip install -r requirements.txt
+          fi
+
+      - name: Build executable
+        shell: bash
+        run: |
+          python -m PyInstaller \
+            --onefile \
+            --name fixtime \
+            --clean \
+            fixtime.py
+
+      - name: Prepare release file
+        shell: bash
+        run: |
+          mkdir -p release
+          cp "${{ matrix.executable_path }}" \
+             "release/${{ matrix.release_name }}"
+
+      - name: Upload executable artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: release/${{ matrix.release_name }}
+          if-no-files-found: error
+          retention-days: 14
+
+  release:
+    name: Publish GitHub Release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download compiled executables
+        uses: actions/download-artifact@v5
+        with:
+          path: release
+          merge-multiple: true
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            release/* \
+            --title "$GITHUB_REF_NAME" \
+            --generate-notes
