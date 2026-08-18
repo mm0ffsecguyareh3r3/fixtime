@@ -333,4 +333,4 @@ else
 fi
 
 echo
-success "Installation complete! 🚀"
+success "Installation complete! "
