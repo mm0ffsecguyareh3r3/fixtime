@@ -15,7 +15,6 @@
 - [Features](#-features)
 - [Quick Install](#-quick-install)
 - [Usage](#-usage)
-- [Examples](#-examples)
 - [Common Use Cases](#-common-use-cases)
 - [Important Notes](#-important-notes)
 - [Building from Source](#-building-from-source)
