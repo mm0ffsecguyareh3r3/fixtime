@@ -1,4 +1,3 @@
-```
 # fixtime
 
 [![GitHub release](https://img.shields.io/github/release/watcher1337/fixtime.svg)](https://github.com/watcher1337/fixtime/releases/latest)
