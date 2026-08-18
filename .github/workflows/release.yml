@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   # Native builds for supported architectures
@@ -21,22 +21,18 @@ jobs:
         include:
           - os: windows-latest
             arch: x64
-            built_file: dist/fixtime.exe
             filename: fixtime-windows-x64.exe
 
           - os: ubuntu-latest
             arch: x64
-            built_file: dist/fixtime
             filename: fixtime-linux-x64
 
           - os: macos-13
             arch: x64
-            built_file: dist/fixtime
             filename: fixtime-macos-x64
 
           - os: macos-15
             arch: arm64
-            built_file: dist/fixtime
             filename: fixtime-macos-arm64
 
     steps:
@@ -65,22 +61,11 @@ jobs:
           path: dist/fixtime*
           if-no-files-found: error
 
-  # ARM64 builds using QEMU (for Linux and Windows)
-  build-arm:
-    name: Build ARM64 (${{ matrix.target }})
+  # Linux ARM64 build using QEMU emulation
+  build-linux-arm64:
+    name: Build Linux ARM64
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - target: linux-arm64
-            container: arm64v8/python:3.13-slim
-            filename: fixtime-linux-arm64
-            pyinstaller_arch: linux
-          
-          # Windows ARM64 is not possible with QEMU, skip it
-          # Users can build on Windows ARM or use the x64 version with emulation
-
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -88,91 +73,44 @@ jobs:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
-      - name: Build ARM64 binary in container
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build ARM64 binary
         run: |
-          docker run --rm \
-            -v ${{ github.workspace }}:/workspace \
-            -w /workspace \
-            ${{ matrix.container }} \
-            bash -c "
-              pip install --upgrade pip
+          # Create a Dockerfile for building
+          cat > Dockerfile.build << 'EOF'
+          FROM arm64v8/python:3.13-slim
+          WORKDIR /build
+          COPY fixtime.py .
+          RUN pip install --upgrade pip && \
               pip install pyinstaller requests
-              pyinstaller --onefile --clean --name fixtime fixtime.py
-              chmod +x dist/fixtime
-            "
+          RUN pyinstaller --onefile --clean --name fixtime fixtime.py
+          EOF
+
+          # Build using docker buildx with ARM64 platform
+          docker buildx build \
+            --platform linux/arm64 \
+            --output type=local,dest=./dist-arm64 \
+            -f Dockerfile.build \
+            .
 
       - name: Rename artifact
         run: |
           mkdir -p release
-          cp dist/fixtime release/${{ matrix.filename }}
+          cp dist-arm64/fixtime release/fixtime-linux-arm64
+          chmod +x release/fixtime-linux-arm64
 
       - name: Upload ARM artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.filename }}
-          path: release/${{ matrix.filename }}
-          if-no-files-found: error
-
-  # Cross-compile Windows ARM64 using mingw (alternative approach)
-  build-windows-arm:
-    name: Build Windows ARM64 (Cross-compile)
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - target: windows-arm64
-            filename: fixtime-windows-arm64.exe
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.13"
-
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y mingw-w64
-          pip install pyinstaller requests
-
-      - name: Build Windows ARM64
-        run: |
-          # This is a simplified approach - actual Windows ARM64 cross-compilation
-          # requires special tooling. This creates a placeholder.
-          echo "Windows ARM64 build requires native Windows ARM runner"
-          echo "Creating placeholder - recommend using x64 with emulation"
-          
-          # Alternative: Build using wine + Python for Windows ARM (complex)
-          # For now, we'll create a note for users
-          mkdir -p release
-          echo "Windows ARM64 build not available via cross-compilation" > release/${{ matrix.filename }}
-          
-          # Create a small info file
-          cat > release/README-WINDOWS-ARM64.txt << EOF
-          Windows ARM64 builds are not currently available via GitHub Actions.
-          
-          To build for Windows ARM64:
-          1. Use a Windows ARM64 machine
-          2. Install Python 3.13 for ARM64
-          3. Run: pyinstaller --onefile fixtime.py
-          
-          Alternatively, Windows x64 builds work on Windows ARM64 via emulation.
-          EOF
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.filename }}
-          path: release/${{ matrix.filename }}
+          name: fixtime-linux-arm64
+          path: release/fixtime-linux-arm64
           if-no-files-found: error
 
   release:
     name: Publish GitHub Release
-    needs: [build, build-arm, build-windows-arm]
+    needs: [build, build-linux-arm64]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -181,21 +119,16 @@ jobs:
       - name: Download all executables
         uses: actions/download-artifact@v4
         with:
-          path: release
+          path: artifacts
           merge-multiple: true
-
-      - name: Clean up placeholder files
-        run: |
-          # Remove placeholder if it exists
-          rm -f release/README-WINDOWS-ARM64.txt
 
       - name: Show downloaded files
         run: |
           echo "Release files:"
-          find release -type f -exec ls -lh {} \;
+          ls -lah artifacts/
 
       - name: Create release
         uses: softprops/action-gh-release@v2
         with:
-          files: release/**/*
+          files: artifacts/**/*
           generate_release_notes: true
