@@ -1,53 +1,291 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# Installer script for fixtime
-# Detects OS architecture and installs the appropriate binary
+# fixtime installer
+#
+# Usage:
+#   curl -fsSL https://raw.githubusercontent.com/watcher1337/fixtime/refs/heads/main/installer.sh | bash
+#
+# Supported:
+#   Linux x86_64
+#   Linux ARM64
+#   macOS x86_64
+#   macOS ARM64
 
-set -e
+set -euo pipefail
 
-# Check if running as root or with sudo
-if [ "$EUID" -ne 0 ]; then 
-    echo "Please run with sudo or as root"
+REPO="watcher1337/fixtime"
+INSTALL_DIR="/usr/local/bin"
+INSTALL_PATH="${INSTALL_DIR}/fixtime"
+
+TEMP_FILE="$(mktemp)"
+
+cleanup() {
+    rm -f "$TEMP_FILE"
+}
+
+trap cleanup EXIT
+
+# ============================================================
+# Output helpers
+# ============================================================
+
+info() {
+    printf '\033[94m[*]\033[0m %s\n' "$1"
+}
+
+success() {
+    printf '\033[92m[✓]\033[0m %s\n' "$1"
+}
+
+error() {
+    printf '\033[91m[-]\033[0m %s\n' "$1" >&2
+}
+
+warning() {
+    printf '\033[93m[!]\033[0m %s\n' "$1"
+}
+
+# ============================================================
+# Header
+# ============================================================
+
+echo
+echo "========================================"
+echo "          fixtime installer"
+echo "========================================"
+echo
+
+# ============================================================
+# Check dependencies
+# ============================================================
+
+if ! command -v curl >/dev/null 2>&1; then
+    error "curl is required."
+    echo
+    echo "Install curl first:"
+    echo
+    echo "  Debian / Ubuntu / Kali:"
+    echo "    sudo apt install curl"
+    echo
+    echo "  macOS:"
+    echo "    curl is normally pre-installed."
+    echo
     exit 1
 fi
 
-# Detect OS
-if [ -f /etc/os-release ]; then
-    . /etc/os-release
-    OS=$ID
-else
-    echo "Cannot detect OS"
-    exit 1
-fi
+# ============================================================
+# Detect operating system
+# ============================================================
 
-# Detect architecture
-ARCH=$(uname -m)
+OS="$(uname -s)"
 
-# Determine which binary to download
-case $ARCH in
-    x86_64|amd64)
-        URL="https://github.com/watcher1337/fixtime/raw/refs/heads/main/fixtime_amd"
+case "$OS" in
+    Linux)
+        OS_NAME="linux"
         ;;
-    aarch64|arm64|armv8l|armv7l|armv6l)
-        URL="https://github.com/watcher1337/fixtime/raw/refs/heads/main/fixtime_arm"
+
+    Darwin)
+        OS_NAME="macos"
         ;;
+
     *)
-        echo "Unsupported architecture: $ARCH"
+        error "Unsupported operating system: $OS"
+        echo
+        echo "Supported operating systems:"
+        echo "  Linux"
+        echo "  macOS"
+        echo
         exit 1
         ;;
 esac
 
-# Download the binary
-TEMP_FILE="/tmp/fixtime_temp"
-wget -q -O "$TEMP_FILE" "$URL"
+# ============================================================
+# Detect architecture
+# ============================================================
 
-# Move to /usr/local/bin
-mv "$TEMP_FILE" /usr/local/bin/fixtime
+ARCH="$(uname -m)"
 
-# Make executable
-chmod +x /usr/local/bin/fixtime
+case "$ARCH" in
+    x86_64|amd64)
+        ARCH_NAME="x64"
+        ;;
 
-# Show success message
+    arm64|aarch64)
+        ARCH_NAME="arm64"
+        ;;
+
+    *)
+        error "Unsupported architecture: $ARCH"
+        echo
+        echo "Detected architecture: $ARCH"
+        echo
+        echo "Supported architectures:"
+        echo "  x86_64"
+        echo "  amd64"
+        echo "  arm64"
+        echo "  aarch64"
+        echo
+        exit 1
+        ;;
+esac
+
+# ============================================================
+# Determine release asset
+# ============================================================
+
+ASSET="fixtime-${OS_NAME}-${ARCH_NAME}"
+
+DOWNLOAD_URL="https://github.com/${REPO}/releases/latest/download/${ASSET}"
+
+info "Operating system : ${OS_NAME}"
+info "Architecture     : ${ARCH_NAME}"
+info "Binary           : ${ASSET}"
+echo
+
+# ============================================================
+# Check sudo
+# ============================================================
+
+if [ "$(id -u)" -eq 0 ]; then
+    SUDO=""
+else
+    if ! command -v sudo >/dev/null 2>&1; then
+        error "sudo is required to install fixtime."
+        exit 1
+    fi
+
+    SUDO="sudo"
+fi
+
+# ============================================================
+# Download latest release
+# ============================================================
+
+info "Downloading latest fixtime release..."
+echo "    ${DOWNLOAD_URL}"
+echo
+
+if ! curl \
+    --fail \
+    --location \
+    --silent \
+    --show-error \
+    --progress-bar \
+    "$DOWNLOAD_URL" \
+    --output "$TEMP_FILE"; then
+
+    error "Failed to download ${ASSET}"
+    echo
+    echo "Make sure the GitHub Release contains:"
+    echo
+    echo "  ${ASSET}"
+    echo
+
+    exit 1
+fi
+
+# ============================================================
+# Validate downloaded file
+# ============================================================
+
+if [ ! -s "$TEMP_FILE" ]; then
+    error "Downloaded file is empty."
+    exit 1
+fi
+
+# Basic protection against accidentally installing HTML.
+if file "$TEMP_FILE" >/dev/null 2>&1; then
+    FILE_TYPE="$(file -b "$TEMP_FILE")"
+
+    case "$OS_NAME" in
+        linux)
+            if [[ "$FILE_TYPE" != *"ELF"* ]]; then
+                error "Downloaded file is not a Linux executable."
+                error "Detected: ${FILE_TYPE}"
+                exit 1
+            fi
+            ;;
+
+        macos)
+            if [[ "$FILE_TYPE" != *"Mach-O"* ]]; then
+                error "Downloaded file is not a macOS executable."
+                error "Detected: ${FILE_TYPE}"
+                exit 1
+            fi
+            ;;
+    esac
+fi
+
+success "Download verified."
+
+# ============================================================
+# Create installation directory
+# ============================================================
+
+info "Preparing ${INSTALL_DIR}..."
+
+$SUDO mkdir -p "$INSTALL_DIR"
+
+# ============================================================
+# Install
+# ============================================================
+
+info "Installing fixtime..."
+
+$SUDO install \
+    -m 0755 \
+    "$TEMP_FILE" \
+    "$INSTALL_PATH"
+
+# ============================================================
+# Verify installation
+# ============================================================
+
+if [ ! -x "$INSTALL_PATH" ]; then
+    error "Installation failed."
+    exit 1
+fi
+
+success "fixtime installed successfully."
+
+# ============================================================
+# Show installed binary
+# ============================================================
+
+echo
 echo "========================================"
-echo "✓ Installation complete!"
+echo "          Installation complete"
 echo "========================================"
+echo
+
+echo "Binary:"
+echo "  ${INSTALL_PATH}"
+
+echo
+echo "Platform:"
+echo "  ${OS_NAME}-${ARCH_NAME}"
+
+echo
+echo "Run:"
+echo "  fixtime -h"
+
+echo
+echo "Example:"
+echo "  sudo fixtime -i 10.10.10.10"
+
+echo
+
+# ============================================================
+# Check PATH
+# ============================================================
+
+if command -v fixtime >/dev/null 2>&1; then
+    success "fixtime is available in PATH."
+else
+    warning "${INSTALL_DIR} may not be in your PATH."
+    echo
+    echo "You can run it directly with:"
+    echo "  ${INSTALL_PATH}"
+fi
+
+echo

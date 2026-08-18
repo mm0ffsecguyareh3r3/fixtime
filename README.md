@@ -5,9 +5,7 @@
 [![Downloads](https://img.shields.io/github/downloads/watcher1337/fixtime/total)](https://github.com/watcher1337/fixtime/releases)
 [![License](https://img.shields.io/github/license/watcher1337/fixtime)](LICENSE)
 
- Time synchronization tool designed to resolve Kerberos authentication issues by correcting system time offsets during Active Directory penetration testing.
-
-
+Time synchronization tool designed to resolve Kerberos authentication issues by correcting system time offsets during Active Directory penetration testing.
 
 ## Installation
 
@@ -18,6 +16,10 @@ wget https://github.com/watcher1337/fixtime/raw/refs/heads/main/installer.sh \
   && chmod +x installer.sh \
   && sudo ./installer.sh \
   && sudo rm -f installer.sh
+```
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/watcher1337/fixtime/refs/heads/main/installer.sh | bash
 ```
 
 ### Windows
@@ -60,11 +62,11 @@ fixtime --restore
 
 ### Latest Release
 
-| Platform | File |
-|---|---|
-| Windows | `fixtime-windows.exe` |
-| Linux | `fixtime-linux` |
-| macOS | `fixtime-macos` |
+| Platform | File                  |
+| -------- | --------------------- |
+| Windows  | `fixtime-windows.exe` |
+| Linux    | `fixtime-linux`       |
+| macOS    | `fixtime-macos`       |
 
 [Download Latest Release](https://github.com/watcher1337/fixtime/releases/latest)
 
@@ -138,7 +140,6 @@ dist/
 
 ---
 
-
 ## Download Statistics
 
 ### Total Downloads
@@ -157,11 +158,11 @@ GitHub tracks download counts separately for each uploaded release asset.
 
 ## Supported Platforms
 
-| Platform | Build | Status |
-|---|---|---|
-| Windows | `fixtime-windows.exe` | ✅ |
-| Linux | `fixtime-linux` | ✅ |
-| macOS | `fixtime-macos` | ✅ |
+| Platform | Build                 | Status |
+| -------- | --------------------- | ------ |
+| Windows  | `fixtime-windows.exe` | ✅     |
+| Linux    | `fixtime-linux`       | ✅     |
+| macOS    | `fixtime-macos`       | ✅     |
 
 ---
 

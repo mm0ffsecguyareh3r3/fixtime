@@ -441,16 +441,24 @@ def run_ntp_sync(server):
 # ============================================================
 # Imports
 # ============================================================
-
 try:
     from impacket.smbconnection import SMBConnection
-
-except ImportError:
-
+except ImportError as e:
     cprint(
-        "[-] Required module 'impacket' not found. "
-        "Install with: sudo apt install python3-impacket"
+        "[-] Failed to load Impacket: "
+        f"{e}"
     )
+
+    if getattr(sys, "frozen", False):
+        cprint(
+            "[-] This executable was built without "
+            "all required Impacket modules."
+        )
+    else:
+        cprint(
+            "[-] Install Impacket with: "
+            "sudo apt install python3-impacket"
+        )
 
     sys.exit(1)
 
