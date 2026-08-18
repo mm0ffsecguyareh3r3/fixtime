@@ -4,7 +4,7 @@ on:
   push:
     tags:
       - "v*"
-  workflow_dispatch:  # Add manual trigger
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -19,18 +19,12 @@ jobs:
       matrix:
         include:
           # =========================
-          # Windows
+          # Windows (x64 only)
           # =========================
           - os: windows-latest
             arch: x64
             built_file: dist/fixtime.exe
             filename: fixtime-windows-x64.exe
-
-          # Windows ARM - use windows-latest with ARM64
-          - os: windows-latest
-            arch: arm64
-            built_file: dist/fixtime.exe
-            filename: fixtime-windows-arm64.exe
 
           # =========================
           # Linux
@@ -40,22 +34,14 @@ jobs:
             built_file: dist/fixtime
             filename: fixtime-linux-x64
 
-          # Linux ARM - use ubuntu-24.04 (standard, supports ARM emulation)
-          - os: ubuntu-latest
-            arch: arm64
-            built_file: dist/fixtime
-            filename: fixtime-linux-arm64
-
           # =========================
           # macOS
           # =========================
-          # macOS Intel
           - os: macos-13
             arch: x64
             built_file: dist/fixtime
             filename: fixtime-macos-x64
 
-          # macOS Apple Silicon
           - os: macos-15
             arch: arm64
             built_file: dist/fixtime
@@ -63,10 +49,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v5
         with:
           python-version: "3.13"
           architecture: ${{ matrix.arch }}
@@ -116,17 +102,81 @@ jobs:
           path: release/${{ matrix.filename }}
           if-no-files-found: error
 
+  # Separate job for ARM builds using cross-compilation
+  build-arm:
+    name: Build ARM Binaries
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: windows
+            arch: arm64
+            filename: fixtime-windows-arm64.exe
+            ext: .exe
+          - target: linux
+            arch: arm64
+            filename: fixtime-linux-arm64
+            ext: ""
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pyinstaller requests
+
+      - name: Build ARM64 binary
+        run: |
+          mkdir -p release
+          
+          # Build ARM64 using PyInstaller with architecture spec
+          if [ "${{ matrix.target }}" = "windows" ]; then
+            # Windows ARM64 - use Python cross-compilation
+            python -m PyInstaller \
+              --onefile \
+              --clean \
+              --name fixtime \
+              --target-arch arm64 \
+              --platform windows \
+              fixtime.py
+            cp dist/fixtime.exe release/${{ matrix.filename }}
+          else
+            # Linux ARM64
+            python -m PyInstaller \
+              --onefile \
+              --clean \
+              --name fixtime \
+              --target-arch arm64 \
+              --platform linux \
+              fixtime.py
+            cp dist/fixtime release/${{ matrix.filename }}
+          fi
+
+      - name: Upload ARM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.filename }}
+          path: release/${{ matrix.filename }}
+          if-no-files-found: error
+
   release:
     name: Publish GitHub Release
-    needs: build
+    needs: [build, build-arm]
     runs-on: ubuntu-latest
-
     permissions:
       contents: write
 
     steps:
       - name: Download all executables
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v4
         with:
           path: release
           merge-multiple: true
@@ -143,14 +193,8 @@ jobs:
           GH_REPO: ${{ github.repository }}
         shell: bash
         run: |
-          # Create release with all artifacts
           gh release create "${{ github.ref_name }}" \
-            release/fixtime-windows-x64.exe \
-            release/fixtime-windows-arm64.exe \
-            release/fixtime-linux-x64 \
-            release/fixtime-linux-arm64 \
-            release/fixtime-macos-x64 \
-            release/fixtime-macos-arm64 \
+            release/* \
             --repo "$GH_REPO" \
             --title "fixtime ${{ github.ref_name }}" \
             --generate-notes
