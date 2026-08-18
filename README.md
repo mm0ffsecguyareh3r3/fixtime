@@ -1,5 +1,3 @@
-Here's a short and clean version with only the essential usage information added:
-
 ```markdown
 # fixtime
 
@@ -82,7 +80,7 @@ fixtime -h                  # Show help
 
 ---
 
-
+```
 
 
 
