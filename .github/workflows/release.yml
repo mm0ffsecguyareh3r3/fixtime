@@ -78,14 +78,26 @@ jobs:
 
       - name: Build ARM64 binary
         run: |
-          # Create a Dockerfile for building
+          # Create a Dockerfile with binutils installed
           cat > Dockerfile.build << 'EOF'
           FROM arm64v8/python:3.13-slim
+          
+          # Install required packages for PyInstaller
+          RUN apt-get update && \
+              apt-get install -y --no-install-recommends \
+              binutils \
+              && rm -rf /var/lib/apt/lists/*
+          
           WORKDIR /build
           COPY fixtime.py .
+          
           RUN pip install --upgrade pip && \
               pip install pyinstaller requests
+          
           RUN pyinstaller --onefile --clean --name fixtime fixtime.py
+          
+          # Verify the binary
+          RUN file dist/fixtime
           EOF
 
           # Build using docker buildx with ARM64 platform
