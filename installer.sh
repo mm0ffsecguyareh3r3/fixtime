@@ -303,14 +303,6 @@ if command -v du >/dev/null 2>&1; then
 fi
 
 echo
-echo "Run:"
-echo "  fixtime -h"
-
-echo
-echo "Example:"
-echo "  sudo fixtime -i 10.10.10.10"
-echo "  sudo fixtime -i 10.10.10.10 --check-skew"
-
 echo
 
 # ============================================================
