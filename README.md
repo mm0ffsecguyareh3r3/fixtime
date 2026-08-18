@@ -62,6 +62,9 @@ python3 -m venv venv && source venv/bin/activate
 ```bash
 pip3 install git+https://github.com/watcher1337/fixtime.git
 ```
+```bash
+fixtime -h
+```
 ### pip3 install from local clone
 ```bash
 git clone https://github.com/watcher1337/fixtime.git && cd fixtime
