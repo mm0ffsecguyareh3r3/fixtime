@@ -16,10 +16,6 @@
 - [Quick Install](#-quick-install)
 - [Usage](#-usage)
 - [Common Use Cases](#-common-use-cases)
-- [Important Notes](#-important-notes)
-- [Building from Source](#-building-from-source)
-- [Contributing](#-contributing)
-- [License](#-license)
 
 ---
 
