@@ -17,17 +17,44 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          # =========================
+          # Windows
+          # =========================
           - os: windows-latest
+            arch: x64
             built_file: dist/fixtime.exe
-            filename: fixtime-windows.exe
+            filename: fixtime-windows-x64.exe
 
+          - os: windows-11-arm
+            arch: arm64
+            built_file: dist/fixtime.exe
+            filename: fixtime-windows-arm64.exe
+
+          # =========================
+          # Linux
+          # =========================
           - os: ubuntu-latest
+            arch: x64
             built_file: dist/fixtime
-            filename: fixtime-linux
+            filename: fixtime-linux-x64
 
-          - os: macos-latest
+          - os: ubuntu-24.04-arm
+            arch: arm64
             built_file: dist/fixtime
-            filename: fixtime-macos
+            filename: fixtime-linux-arm64
+
+          # =========================
+          # macOS
+          # =========================
+          - os: macos-15-intel
+            arch: x64
+            built_file: dist/fixtime
+            filename: fixtime-macos-x64
+
+          - os: macos-15
+            arch: arm64
+            built_file: dist/fixtime
+            filename: fixtime-macos-arm64
 
     steps:
       - name: Checkout repository
@@ -37,8 +64,17 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: "3.13"
+          architecture: ${{ matrix.arch }}
 
-      - name: Install PyInstaller
+      - name: Show environment
+        shell: bash
+        run: |
+          echo "OS: $(uname -s)"
+          echo "Architecture: $(uname -m)"
+          python --version
+          python -c "import platform; print('Python architecture:', platform.machine())"
+
+      - name: Install dependencies
         shell: bash
         run: |
           python -m pip install --upgrade pip
@@ -57,10 +93,20 @@ jobs:
             --name fixtime \
             fixtime.py
 
+      - name: Verify executable
+        shell: bash
+        run: |
+          ls -lah dist/
+
+          if [ ! -f "${{ matrix.built_file }}" ]; then
+            echo "ERROR: Build output not found"
+            exit 1
+          fi
+
       - name: Rename executable
         shell: bash
         run: |
-          mkdir release
+          mkdir -p release
           cp "${{ matrix.built_file }}" "release/${{ matrix.filename }}"
 
       - name: Upload build artifact
@@ -86,18 +132,24 @@ jobs:
           merge-multiple: true
 
       - name: Show downloaded files
-        run: find release -maxdepth 2 -type f -print
+        shell: bash
+        run: |
+          echo "Release files:"
+          find release -maxdepth 1 -type f -exec ls -lh {} \;
 
-      - name: Create release and upload executables
+      - name: Create release
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
         shell: bash
         run: |
           gh release create "${{ github.ref_name }}" \
-            release/fixtime-windows.exe \
-            release/fixtime-linux \
-            release/fixtime-macos \
+            release/fixtime-windows-x64.exe \
+            release/fixtime-windows-arm64.exe \
+            release/fixtime-linux-x64 \
+            release/fixtime-linux-arm64 \
+            release/fixtime-macos-x64 \
+            release/fixtime-macos-arm64 \
             --repo "$GH_REPO" \
             --title "fixtime ${{ github.ref_name }}" \
             --generate-notes
