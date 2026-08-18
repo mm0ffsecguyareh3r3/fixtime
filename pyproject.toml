@@ -1,0 +1,18 @@
+[project]
+name = "fixtime"
+version = "2.0.0"
+description = "Time synchronization tool for Kerberos authentication"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "ntplib",
+    "click",
+    "python-dateutil"
+]
+
+[project.scripts]
+fixtime = "fixtime:main"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
