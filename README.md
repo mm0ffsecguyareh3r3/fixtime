@@ -57,6 +57,10 @@ fixtime -h
 ```
 ### pip3 install
 ```bash
+# From GitHub
+pip3 install git+https://github.com/watcher1337/fixtime.git
+```
+```bash
 git clone https://github.com/watcher1337/fixtime.git && cd fixtime
 ```
 ```bash
