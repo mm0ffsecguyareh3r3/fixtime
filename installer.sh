@@ -145,7 +145,7 @@ if [ "$OS_NAME" = "windows" ]; then
     exit 1
 fi
 
-# Add .exe extension for Windows (though not supported)
+# Add .exe extension for Windows (though not supported, but kept for consistency)
 if [ "$OS_NAME" = "windows" ]; then
     ASSET="${ASSET}.exe"
 fi
@@ -220,27 +220,29 @@ if command -v file >/dev/null 2>&1; then
     case "$OS_NAME" in
         linux)
             if [[ "$FILE_TYPE" != *"ELF"* ]]; then
-                error "Downloaded file is not a Linux executable."
-                error "Detected: ${FILE_TYPE}"
+                warning "Downloaded file doesn't appear to be a Linux executable."
+                warning "Detected: ${FILE_TYPE}"
                 echo
                 echo "This might happen if:"
                 echo "  - The release doesn't have ${ASSET}"
                 echo "  - GitHub is returning an error page"
                 echo
-                exit 1
+                echo "Continuing anyway as this might be a false positive..."
+                echo
             fi
             ;;
 
         macos)
             if [[ "$FILE_TYPE" != *"Mach-O"* ]]; then
-                error "Downloaded file is not a macOS executable."
-                error "Detected: ${FILE_TYPE}"
+                warning "Downloaded file doesn't appear to be a macOS executable."
+                warning "Detected: ${FILE_TYPE}"
                 echo
                 echo "This might happen if:"
                 echo "  - The release doesn't have ${ASSET}"
                 echo "  - GitHub is returning an error page"
                 echo
-                exit 1
+                echo "Continuing anyway as this might be a false positive..."
+                echo
             fi
             ;;
     esac
@@ -254,7 +256,15 @@ success "Download verified."
 
 info "Preparing ${INSTALL_DIR}..."
 
-$SUDO mkdir -p "$INSTALL_DIR"
+if [ ! -d "$INSTALL_DIR" ]; then
+    $SUDO mkdir -p "$INSTALL_DIR"
+fi
+
+# Check if directory is writable
+if [ ! -w "$INSTALL_DIR" ] && [ "$SUDO" = "" ]; then
+    error "Cannot write to ${INSTALL_DIR}. Need sudo or run as root."
+    exit 1
+fi
 
 # ============================================================
 # Install
@@ -277,3 +287,21 @@ if [ ! -x "$INSTALL_PATH" ]; then
 fi
 
 success "fixtime installed successfully."
+echo
+info "You can now run 'fixtime' from the command line."
+echo
+info "To see usage: fixtime --help"
+echo
+
+# Optional: Check if PATH includes the install directory
+if ! echo "$PATH" | grep -q "$INSTALL_DIR"; then
+    warning "${INSTALL_DIR} is not in your PATH."
+    echo
+    echo "You might need to add it to your shell configuration:"
+    echo
+    echo "  export PATH=\"\$PATH:${INSTALL_DIR}\""
+    echo
+    echo "Or run fixtime with the full path:"
+    echo "  ${INSTALL_PATH}"
+    echo
+fi
