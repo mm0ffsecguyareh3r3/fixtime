@@ -13,7 +13,6 @@
 
 ## 📋 Table of Contents
 
-- [Features](#-features)
 - [Quick Install](#-quick-install)
 
 ---
