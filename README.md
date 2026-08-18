@@ -136,59 +136,6 @@ dist/
 
 ---
 
-## GitHub Actions Build
-
-The project uses GitHub Actions to build native executables for:
-
-- Windows
-- Linux
-- macOS
-
-A release is automatically created whenever a version tag matching `v*` is pushed.
-
-### Create a Release
-
-```bash
-git add .
-git commit -m "release: v1.0.0"
-
-git tag v1.0.0
-git push origin v1.0.0
-```
-
-GitHub Actions will automatically build:
-
-```text
-fixtime-windows.exe
-fixtime-linux
-fixtime-macos
-```
-
-and upload them to the GitHub Release.
-
----
-
-## Release Artifacts
-
-Each GitHub Release contains the following executable assets:
-
-```text
-fixtime-windows.exe
-fixtime-linux
-fixtime-macos
-```
-
-The executables are built independently on their native GitHub Actions runners:
-
-```text
-Windows → windows-latest
-Linux   → ubuntu-latest
-macOS   → macos-latest
-```
-
-This avoids cross-compilation issues and produces native platform binaries.
-
----
 
 ## Download Statistics
 
