@@ -29,6 +29,7 @@ jobs:
           - os: windows-latest
             arch: x64
             filename: fixtime-windows-x64.exe
+            binary: dist/fixtime.exe
 
           # =========================
           # Linux (x64)
@@ -36,6 +37,7 @@ jobs:
           - os: ubuntu-latest
             arch: x64
             filename: fixtime-linux-x64
+            binary: dist/fixtime
 
           # =========================
           # Linux ARM64 - NATIVE ARM RUNNER!
@@ -43,6 +45,7 @@ jobs:
           - os: ubuntu-24.04-arm
             arch: arm64
             filename: fixtime-linux-arm64
+            binary: dist/fixtime
 
           # =========================
           # macOS (Intel)
@@ -50,6 +53,7 @@ jobs:
           - os: macos-14
             arch: x64
             filename: fixtime-macos-x64
+            binary: dist/fixtime
 
           # =========================
           # macOS ARM64 - NATIVE ARM RUNNER!
@@ -57,6 +61,7 @@ jobs:
           - os: macos-15
             arch: arm64
             filename: fixtime-macos-arm64
+            binary: dist/fixtime
 
     steps:
       - name: Checkout repository
@@ -87,11 +92,21 @@ jobs:
         run: |
           python -m PyInstaller --onefile --clean --name fixtime fixtime.py
 
+      - name: Rename artifact
+        shell: bash
+        run: |
+          # Rename the binary to the architecture-specific name
+          if [ -f "dist/fixtime.exe" ]; then
+            mv dist/fixtime.exe "dist/${{ matrix.filename }}"
+          elif [ -f "dist/fixtime" ]; then
+            mv dist/fixtime "dist/${{ matrix.filename }}"
+          fi
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.filename }}
-          path: dist/fixtime*
+          path: dist/${{ matrix.filename }}
           if-no-files-found: error
 
   release:
