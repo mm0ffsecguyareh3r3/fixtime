@@ -290,7 +290,7 @@ success "fixtime installed successfully."
 echo
 info "You can now run 'fixtime' from the command line."
 echo
-info "To see usage: fixtime --help"
+info "To see usage: fixtime -h"
 echo
 
 # Optional: Check if PATH includes the install directory
