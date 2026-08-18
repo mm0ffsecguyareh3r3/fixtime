@@ -24,7 +24,6 @@
 - 🔒 Corrects system time to match Active Directory servers
 - 🖥️ Cross-platform: Windows, Linux, macOS (x64 & ARM64)
 - 🔧 NTP auto-sync with fallback servers
-- ⚡ Lightweight and dependency-free binary
 - 🎯 Kerberos tolerance-aware with force option
 - 🔄 One-command restore functionality
 - 📦 No external dependencies required
