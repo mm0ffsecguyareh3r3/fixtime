@@ -26,7 +26,7 @@
 - 🔧 NTP auto-sync with fallback servers
 - 🎯 Kerberos tolerance-aware with force option
 - 🔄 One-command restore functionality
-- 📦 No external dependencies required
+
 
 ---
 
