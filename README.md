@@ -44,10 +44,29 @@ curl -fsSL https://raw.githubusercontent.com/watcher1337/fixtime/refs/heads/main
 ```bash
 uv tool install git+https://github.com/watcher1337/fixtime.git
 ```
+```bash
+fixtime -h
+```
 
 ### pipx install
 ```bash
 pipx install git+https://github.com/watcher1337/fixtime.git
+```
+```bash
+fixtime -h
+```
+### pip3 install
+```bash
+git clone https://github.com/watcher1337/fixtime.git && cd fixtime
+```
+```bash
+python3 -m venv venv && source venv/bin/activate
+```
+```bash
+pip3 install .
+```
+```bash
+fixtime -h
 ```
 
 ### Windows
