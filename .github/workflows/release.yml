@@ -25,7 +25,7 @@ jobs:
             built_file: dist/fixtime.exe
             filename: fixtime-windows-x64.exe
 
-          - os: windows-11-arm
+          - os: windows-latest
             arch: arm64
             built_file: dist/fixtime.exe
             filename: fixtime-windows-arm64.exe
