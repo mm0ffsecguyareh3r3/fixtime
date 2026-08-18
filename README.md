@@ -40,6 +40,11 @@
 curl -fsSL https://raw.githubusercontent.com/watcher1337/fixtime/refs/heads/main/installer.sh | bash
 ```
 
+### uv install
+```bash
+uv tool install git+https://github.com/watcher1337/fixtime.git
+```
+
 ### Windows
 
 Download `fixtime.exe` from [releases](https://github.com/watcher1337/fixtime/releases/latest)
