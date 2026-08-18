@@ -45,7 +45,7 @@ curl -fsSL https://raw.githubusercontent.com/watcher1337/fixtime/refs/heads/main
 uv tool install git+https://github.com/watcher1337/fixtime.git
 ```
 
-### pipx
+### pipx install
 ```bash
 pipx install git+https://github.com/watcher1337/fixtime.git
 ```
