@@ -5,7 +5,9 @@
 [![Downloads](https://img.shields.io/github/downloads/watcher1337/fixtime/total)](https://github.com/watcher1337/fixtime/releases)
 [![License](https://img.shields.io/github/license/watcher1337/fixtime)](LICENSE)
 
-A lightweight utility for fixing time-related configuration on target systems.
+ Time synchronization tool designed to resolve Kerberos authentication issues by correcting system time offsets during Active Directory penetration testing.
+
+
 
 ## Installation
 
