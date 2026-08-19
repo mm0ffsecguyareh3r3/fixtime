@@ -1,7 +1,6 @@
 # fixtime
 
 [![GitHub release](https://img.shields.io/github/release/watcher1337/fixtime.svg)](https://github.com/watcher1337/fixtime/releases/latest)
-[![GitHub downloads](https://img.shields.io/github/downloads/watcher1337/fixtime/total.svg)](https://github.com/watcher1337/fixtime/releases)
 [![Python 3.13+](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/)
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)](https://github.com/watcher1337/fixtime/releases)
 
