@@ -68,10 +68,10 @@ Download `fixtime.exe` from [releases](https://github.com/watcher1337/fixtime/re
 ## 📖 Usage
 
 ```bash
-fixtime -i <dc-ip>          # Sync time with AD server
-fixtime -i <dc-ip> --force  # Force sync (bypass tolerance)
-fixtime --restore               # Restore NTP service
-fixtime -h                      # Show help
+fixtime -i <dc-ip>            # Sync time with AD server
+fixtime -i <dc-ip> --force    # Force sync (bypass tolerance)
+fixtime --restore             # Restore NTP service
+fixtime -h                    # Show help
 ```
 
 **Options:**
