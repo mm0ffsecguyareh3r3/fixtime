@@ -72,7 +72,7 @@ Download `fixtime.exe` from [releases](https://github.com/watcher1337/fixtime/re
 
 ```bash
 fixtime -i <target-ip>          # Sync time with AD server
-fixtime -i <target-ip> --force  # Force sync (bypass 5-min tolerance)
+fixtime -i <target-ip> --force  # Force sync (bypass tolerance)
 fixtime --restore               # Restore NTP service
 fixtime -h                      # Show help
 ```
