@@ -20,11 +20,13 @@
 
 ## ✨ Features
 
-- 🔒 Corrects system time to match Active Directory servers
-- 🖥️ Cross-platform: Windows, Linux, macOS (x64 & ARM64)
-- 🔧 NTP auto-sync with fallback servers
-- 🎯 Kerberos tolerance-aware with force option
-- 🔄 One-command restore functionality
+- 🔒 Time sync – Corrects system time to match AD servers via NTP with fallback support
+
+- 🖥️ Cross-platform – Windows, Linux, macOS (x64 & ARM64)
+
+- 🎯 Kerberos-aware – Tolerance check with --force to bypass 5-min limit
+
+- 🔄 Clean restore – One-command to re-enable NTP after engagement
 
 
 ---
