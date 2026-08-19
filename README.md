@@ -93,7 +93,6 @@ fixtime -h                      # Show help
 
 - **Fix Kerberos errors:** `KDC_ERR_CLOCK_SKEW`, "Clock skew too great"
 - **Before AD penetration testing:** Sync time with DC before using Impacket, BloodHound, etc.
-- **Force sync:** When offset exceeds 5 minutes
 - **Cleanup:** Restore NTP after engagement
 
 ---
