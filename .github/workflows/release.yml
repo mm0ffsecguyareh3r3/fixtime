@@ -1,4 +1,4 @@
-name: Build and Release fixtime
+name: Build, Release, and Publish to PyPI
 
 on:
   push:
@@ -13,6 +13,7 @@ on:
 
 permissions:
   contents: write
+  id-token: write  # ⭐ ADDED: Required for PyPI OIDC
 
 jobs:
   build:
@@ -153,3 +154,38 @@ jobs:
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ============================================================
+  # ⭐ NEW: PyPI Publishing Job
+  # ============================================================
+  pypi-publish:
+    name: Publish to PyPI
+    needs: build
+    runs-on: ubuntu-latest
+    # Only run on tag pushes (not manual workflow_dispatch)
+    if: github.event_name == 'push'
+    environment: pypi  # ⚠️ MUST match what you set in PyPI
+    permissions:
+      contents: read
+      id-token: write  # Required for OIDC
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install build tools
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install --upgrade build
+
+      - name: Build package for PyPI
+        run: python -m build
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        # ✅ No API token needed - uses OIDC automatically!
