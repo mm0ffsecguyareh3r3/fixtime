@@ -35,15 +35,10 @@
 
 ### Linux 
 
-### uv install
+### uv / pipx
 ```bash
 uv tool install fixtime
 ```
-```bash
-fixtime -h
-```
-
-### pipx install
 ```bash
 pipx install fixtime
 ```
