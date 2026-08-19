@@ -39,9 +39,6 @@ uv tool install fixtime
 ```bash
 pipx install fixtime
 ```
-```bash
-fixtime -h
-```
 
 ###  macOS with pipx
 
@@ -54,10 +51,6 @@ pipx ensurepath
 ```bash
 pipx install fixtime
 ```
-```bash
-fixtime -h
-```
-
 
 ### Windows
 
