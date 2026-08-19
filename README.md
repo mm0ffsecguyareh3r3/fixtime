@@ -78,10 +78,10 @@ fixtime -h                      # Show help
 ```
 
 **Options:**
-- `-i IP` - Target Active Directory server IP
+- `-i IP` - Domain controller IP
 - `--force` - Force sync even if already within Kerberos tolerance
 - `--restore` - Re-enable NTP service
-- `-h` - Display help
+- `-h` - Show help
 
 
 ---
