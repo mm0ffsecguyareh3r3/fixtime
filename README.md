@@ -50,6 +50,22 @@ pipx install fixtime
 fixtime -h
 ```
 
+###  macOS with pipx
+
+```bash
+brew install pipx
+```
+```bash
+pipx ensurepath
+```
+```bash
+pipx install fixtime
+```
+```bash
+fixtime -h
+```
+
+
 ### Windows
 
 Download `fixtime.exe` from [releases](https://github.com/watcher1337/fixtime/releases/latest)
