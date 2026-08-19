@@ -14,19 +14,16 @@
 - [Features](#-features)
 - [Quick Install](#-quick-install)
 - [Usage](#-usage)
-- [Common Use Cases](#-common-use-cases)
 
 ---
 
 ## ✨ Features
 
 - 🔒 Time sync – Corrects system time to match AD servers via NTP with fallback support
-
 - 🖥️ Cross-platform – Windows, Linux, macOS (x64 & ARM64)
-
 - 🎯 Kerberos-aware – Tolerance check with --force to bypass 5-min limit
-
 - 🔄 Clean restore – One-command to re-enable NTP after engagement
+- 💪 Fixes KDC_ERR_CLOCK_SKEW before running Impacket, BloodHound, or any AD tool
 
 
 ---
@@ -86,11 +83,7 @@ fixtime -h                      # Show help
 
 ---
 
-## 🎯 Common Use Cases
 
-- **Fix Kerberos errors:** `KDC_ERR_CLOCK_SKEW`, "Clock skew too great"
-- **Before AD penetration testing:** Sync time with DC before using Impacket, BloodHound, etc.
-- **Cleanup:** Restore NTP after engagement
 
 ---
 
