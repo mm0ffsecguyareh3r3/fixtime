@@ -32,7 +32,7 @@
 
 ## 🚀 Quick Install
 
-### Linux / macOS
+### Linux 
 
 ### uv install
 ```bash
