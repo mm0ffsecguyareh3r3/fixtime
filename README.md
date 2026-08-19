@@ -81,8 +81,6 @@ fixtime -h                      # Show help
 - `-h` - Show help
 
 
----
-
 
 
 
